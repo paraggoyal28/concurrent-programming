@@ -1,0 +1,157 @@
+Concurrent Programming in java
+Threads
+
+Data Race
+Two threads incrementing shared value.
+
+INCR(A) {
+	Synchronized(A) { //  Acquire Lock
+		A.count = A.count + 1;
+	} // Release Lock
+}
+
+X{Buf, In, Out}
+
+Insert(Item) {
+	Synchronized(X) {
+		Wait if Buf is full;
+		Buf[In] = Item;
+		In += 1;
+		Notify();
+	}
+}
+
+Remove() {
+	Synchronized(X) {
+		Wait if Buf is Empty;
+		Item = Buf[Out];
+		Out++;
+		return Item;
+		Notify;
+	}
+}
+
+Unstructured Locks
+
+Lets say multiple threads have  to work over a linked list N1-> N2->N3->N4.
+
+Lock (L1)
+Lock (L2)
+
+Work w/ N1 & N2
+Unlock(L1)
+Lock(L3)
+
+Work w/ N2 & N3
+
+Unlock(L2)
+Lock(L4)
+
+
+Work w/ N3 & N4
+
+Unlock(L3)
+Unlock(L4)
+
+Unstructured locks can be used to support a hand-over-hand locking pattern that implements a non-nested pairing of lock
+/ unlock operations which cannot be achieved with synchronized methods/statements.
+
+
+if(tryLock) can do the operation if tryLock returns  true
+else do something other
+
+
+Read Write Lock
+For array operations
+
+Read Lock when search
+readLock(L);
+if (a[i] == x): 
+unlock(L);
+
+Write Lock when update
+writeLock(L);
+a[i] = y;
+unlock(L);
+
+Multiple threads are allowed to have a read lock but only one thread is allowed to have a write lock.
+
+Liveness
+
+1. Deadlock
+
+sync(A) {
+	sync(B) {
+	
+	}
+}	
+
+sync(B) {
+	sync(A) {
+	
+	}
+}	
+
+violates Liveness property
+
+2. Livelock
+
+Mutable int x
+
+T1 
+Do {
+sync(x) {
+  x.increment()
+  r = x.get();
+  }
+} while(r < 2);
+
+T2 
+Do {
+sync(x) {
+  x.decrement()
+  r = x.get();
+  }
+} while(r > -2);
+  
+T1     |         T2
+
+x = 0  |        
+x = 1  |          
+       |     x = 0
+	   |     x = -1
+x = 0  |
+	   |     x = -1
+x = 0  |
+	   |     x = -1
+x = 0  |
+x = 1  | 
+
+3. Starvation
+S1, S2, .... S100
+
+T1 {
+  do {
+	In1 = S1.ReadLine();
+	Print(In1);	
+	} while(...)
+} 
+
+T100 : Starves{
+  do {
+	In100 = S100.ReadLine();
+	Print(In100);
+	} while(...);
+}
+
+
+
+Deadlock in which all threads are blocked indefinitely, thereby preventing any forward progress.
+The second is livelock, in which all threads repeatedly perform an interaction that prevents forward progress. eg. an "infinite loop"
+of repeatedly lock acquire/release patterns.
+The third is starvation, in which at least one thread is prevented from making any forward progress.
+
+The "liveness" refers to a progress guarantee. The three progress guarantees that correspond to the absence of the conditions
+listed above are "deadlock freedom", "livelock freedom", "starvation freedom".
+
+	   
